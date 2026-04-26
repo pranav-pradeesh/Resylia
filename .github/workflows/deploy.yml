@@ -1,0 +1,57 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-web:
+    name: Deploy web → Vercel
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'pnpm' }
+      - run: pnpm install --frozen-lockfile
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: --prod
+
+  deploy-prediction:
+    name: Deploy prediction service → Railway
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: services/prediction
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+      - name: Deploy
+        run: railway up --service resylia-prediction
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+  deploy-slack-bot:
+    name: Deploy Slack bot → Railway
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: apps/slack-bot
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+      - name: Deploy
+        run: railway up --service resylia-slack-bot
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

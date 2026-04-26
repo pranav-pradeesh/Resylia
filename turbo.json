@@ -1,0 +1,12 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env.local"],
+  "tasks": {
+    "build": { "dependsOn": ["^build"], "outputs": [".next/**", "dist/**"], "cache": false, "inputs": [".env.local"], "env": ["GROQ_API_KEY", "SLACK_BOT_TOKEN"] },
+    "dev": { "cache": false, "persistent": true },
+    "test": { "dependsOn": ["^build"] },
+    "test:e2e": { "dependsOn": ["^build"] },
+    "lint": {},
+    "type-check": {}
+  }
+}
