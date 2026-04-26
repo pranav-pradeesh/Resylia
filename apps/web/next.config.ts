@@ -1,4 +1,4 @@
-import type { NextConfig } from 'next'
+ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -24,12 +24,15 @@ const nextConfig: NextConfig = {
               "script-src 'self' https://js.stripe.com",
               "style-src 'self' 'unsafe-inline'",  // safe: no user-controlled content in styles
               "img-src 'self' data: https:",
-              "font-src 'self'",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://js.stripe.com",
-              "frame-src https://js.stripe.com",
+              // Google Fonts are loaded by auth pages
+              "font-src 'self' https://fonts.gstatic.com",
+              // Supabase auth + Google/Slack OAuth token endpoints
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://js.stripe.com https://accounts.google.com https://slack.com",
+              "frame-src https://js.stripe.com https://accounts.google.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
-              "form-action 'self'",
+              // Allow form POSTs to Google/Slack OAuth and our own routes
+              "form-action 'self' https://accounts.google.com https://slack.com",
             ].join('; '),
           },
         ],
@@ -54,3 +57,4 @@ const nextConfig: NextConfig = {
 }
 
 export default nextConfig
+
