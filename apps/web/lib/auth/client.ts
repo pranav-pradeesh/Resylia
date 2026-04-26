@@ -16,20 +16,20 @@ export async function signInWithEmail(email: string, password: string) {
 
 export async function signInWithOAuth(provider: 'google' | 'slack') {
   const supabase = createClient()
-  
-  // Note: Slack OAuth is primarily for bot access. For user sign-in, use Google.
-  // Slack user sign-in would require a separate Slack app config.
-  if (provider === 'slack') {
-    throw new Error('Slack sign-in is not yet configured. Please use Google to sign in, then connect Slack in settings.')
-  }
-  
-  // Set redirectTo to our Next.js API route that handles the OAuth callback
+
+  // Map provider name to Supabase provider ID.
+  // Slack user sign-in requires 'slack_oidc' (not 'slack', which is for bots).
+  // Make sure 'Slack (OIDC)' is enabled in Supabase Dashboard → Authentication → Providers.
+  const supabaseProvider = provider === 'slack' ? 'slack_oidc' : 'google'
+
+  // Redirect back to our Next.js callback handler after OAuth completes
   const redirectTo = `${window.location.origin}/api/auth/v1/callback`
-  
+
   const { error } = await supabase.auth.signInWithOAuth({
-    provider,
+    provider: supabaseProvider,
     options: { redirectTo },
   })
+
   if (error) throw error
 }
 
