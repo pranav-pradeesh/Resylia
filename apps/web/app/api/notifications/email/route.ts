@@ -21,10 +21,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid email type' }, { status: 400 })
     }
 
-    const { data: userData } = await (adminDb.from('users') as any)
+const { data: userData } = await adminDb
+      .from('users')
       .select('email, full_name')
       .eq('id', userId)
-      .single()
+      .single<{ email: string; full_name: string }>()
 
     if (!userData?.email) {
       return NextResponse.json({ error: 'User email not found' }, { status: 404 })
@@ -144,3 +145,4 @@ function renderInvitationEmail(inviterName: string, orgName: string) {
     </div>
   `
 }
+

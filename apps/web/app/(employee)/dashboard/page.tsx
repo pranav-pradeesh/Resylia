@@ -1,130 +1,149 @@
 'use client'
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
 
-interface DashboardData {
-  streak: number
-  checkins: { date: string; energy: number; stress: number; workload: number }[]
-  last_checkin: string | null
-  checked_in_today: boolean
+import { useEffect, useState } from 'react'
+
+interface UserStats {
+  lastCheckin: string | null
+  currentEnergy: number
+  currentStress: number
+  moodStreak: number
+  ptoPlanned: boolean
+  nextPtoDate: string | null
+  daysWithoutBreak: number
+  weeklyMeetings: number
+  focusTimeToday: number
+  peerMatchAvailable: boolean
 }
 
-export default function EmployeeDashboard() {
-  const [data, setData] = useState<DashboardData | null>(null)
+const quickActions = [
+  { icon: '⚡', label: 'Quick Check-in', href: '/(employee)/checkin' as const, color: 'bg-emerald-50 hover:bg-emerald-100' },
+  { icon: '🎯', label: 'Focus Time', href: '/employee/focus' as const, color: 'bg-purple-50 hover:bg-purple-100' },
+  { icon: '📅', label: 'Skip Meetings', href: '/employee/meeting-fatigue' as const, color: 'bg-blue-50 hover:bg-blue-100' },
+  { icon: '🗓️', label: 'Plan PTO', href: '/employee/pto' as const, color: 'bg-cyan-50 hover:bg-cyan-100' },
+  { icon: '🤝', label: 'Find Peer', href: '/employee/peers' as const, color: 'bg-amber-50 hover:bg-amber-100' },
+  { icon: '📊', label: 'My Insights', href: '/employee/insights' as const, color: 'bg-rose-50 hover:bg-rose-100' },
+] as const
+
+type QuickAction = typeof quickActions[number]
+
+function QuickActionLink({ action }: { action: QuickAction }) {
+  return (
+    <a href={action.href} className={`block ${action.color} rounded-2xl p-4 transition-all hover:scale-[1.02]`}>
+      <span className="text-2xl">{action.icon}</span>
+      <p className="text-sm font-medium text-gray-700 mt-1">{action.label}</p>
+    </a>
+  )
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        <div className="mb-6">
+          <div className="animate-pulse h-8 w-48 bg-gray-200 rounded mb-2" />
+          <div className="animate-pulse h-4 w-32 bg-gray-200 rounded" />
+        </div>
+        <div className="bg-emerald-500 rounded-2xl p-6 mb-6 h-40 animate-pulse" />
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className="bg-white rounded-xl p-4 h-32 animate-pulse" />
+          ))}
+        </div>
+        <div className="bg-white rounded-xl p-4 h-64 animate-pulse" />
+      </div>
+    </div>
+  )
+}
+
+export default function EmployeeDashboardPage() {
+  const [data, setData] = useState<UserStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/employee/dashboard')
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false))
+      .then(r => r.json())
+      .then(d => { setData(d); setLoading(false) })
+      .catch(() => setLoading(false))
   }, [])
 
-  return (
-    <div style={{
-      fontFamily: "'DM Mono', monospace",
-      background: '#0a0a0f',
-      minHeight: '100vh',
-      color: '#f1f0eb',
-      padding: '32px 24px',
-    }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        .layout { max-width: 680px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .logo { font-family: 'DM Serif Display', serif; font-size: 20px; letter-spacing: -0.5px; }
-        .sign-out { font-size: 12px; color: #6b7280; text-decoration: none; }
-        .sign-out:hover { color: #9ca3af; }
-        .streak-block { text-align: center; padding: 40px 0; }
-        .streak-num { font-family: 'DM Serif Display', serif; font-size: 80px; line-height: 1; color: #f59e0b; }
-        .streak-unit { font-size: 13px; color: #6b7280; letter-spacing: 3px; text-transform: uppercase; margin-top: 6px; }
-        .checkin-btn { display: block; width: 100%; padding: 18px; background: #f59e0b; color: #0a0a0f; border: none; border-radius: 12px; font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 500; text-align: center; text-decoration: none; cursor: pointer; margin: 24px 0; transition: opacity 0.2s; }
-        .checkin-btn:hover { opacity: 0.85; }
-        .checkin-btn.done { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.25); cursor: default; }
-        .checkin-btn.done:hover { opacity: 1; }
-        .section-label { font-size: 11px; color: #6b7280; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
-        .chart-container { background: #111118; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-        .chart-legend { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #9ca3af; }
-        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-        .chart { display: flex; align-items: flex-end; gap: 6px; height: 100px; }
-        .bar-group { flex: 1; display: flex; gap: 2px; align-items: flex-end; }
-        .bar { flex: 1; border-radius: 2px 2px 0 0; transition: opacity 0.2s; min-height: 4px; }
-        .bar:hover { opacity: 0.7; }
-        .bar-date { text-align: center; font-size: 9px; color: #6b7280; margin-top: 6px; }
-        .empty-state { text-align: center; padding: 40px; color: #6b7280; font-size: 13px; }
-        .skeleton { background: rgba(255,255,255,0.05); border-radius: 8px; animation: pulse 1.5s ease-in-out infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-      `}</style>
+  if (loading) return <DashboardSkeleton />
 
-      <div className="layout">
-        <div className="header">
-          <div className="logo">Resylia</div>
-          <a href="/auth/signout" className="sign-out">sign out</a>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back!</h1>
+          <p className="text-gray-600">How are you feeling today?</p>
         </div>
 
-        {loading ? (
-          <div>
-            <div className="skeleton" style={{ height: 200, marginBottom: 24 }} />
-            <div className="skeleton" style={{ height: 160 }} />
+        {/* Wellness Score Card */}
+        <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 mb-6 text-white">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Your Wellness Score</h2>
+            <span className="text-3xl">🌟</span>
           </div>
-        ) : data ? (
-          <>
-            <div className="streak-block">
-              <div className="streak-num">{data.streak > 0 ? `🔥${data.streak}` : '—'}</div>
-              <div className="streak-unit">day streak</div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-emerald-100 text-sm">Energy Level</p>
+              <p className="text-2xl font-bold">{data?.currentEnergy || 0}/10</p>
             </div>
+            <div>
+              <p className="text-emerald-100 text-sm">Stress Level</p>
+              <p className="text-2xl font-bold">{data?.currentStress || 0}/10</p>
+            </div>
+          </div>
+        </div>
 
-            {data.checked_in_today ? (
-              <div className="checkin-btn done">✓ Checked in today</div>
-            ) : (
-              <Link href="/checkin" className="checkin-btn">
-                Start today's check-in →
-              </Link>
-            )}
+        {/* Quick Actions */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">Quick Actions</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {quickActions.map(action => (
+              <QuickActionLink key={action.label} action={action} />
+            ))}
+          </div>
+        </div>
 
-            <div className="chart-container">
-              <div className="section-label">Your last 14 days</div>
-              <div className="chart-legend">
-                <div className="legend-item">
-                  <div className="legend-dot" style={{ background: '#f59e0b' }} />
-                  stress
-                </div>
-                <div className="legend-item">
-                  <div className="legend-dot" style={{ background: '#34d399' }} />
-                  energy
-                </div>
-                <div className="legend-item">
-                  <div className="legend-dot" style={{ background: '#818cf8' }} />
-                  workload
-                </div>
+        {/* Health Stats */}
+        <div className="bg-white rounded-xl p-4">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Health Stats</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Mood Streak</span>
+              <span className="font-semibold text-gray-900">{data?.moodStreak || 0} days</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Days Without Break</span>
+              <span className="font-semibold text-gray-900">{data?.daysWithoutBreak || 0}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Weekly Meetings</span>
+              <span className="font-semibold text-gray-900">{data?.weeklyMeetings || 0}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Focus Time Today</span>
+              <span className="font-semibold text-gray-900">{data?.focusTimeToday || 0}h</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">PTO Planned</span>
+              <span className="font-semibold text-gray-900">
+                {data?.ptoPlanned ? 'Yes' : 'No'}
+              </span>
+            </div>
+            {data?.nextPtoDate && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Next PTO</span>
+                <span className="font-semibold text-gray-900">{data.nextPtoDate}</span>
               </div>
-
-              {data.checkins.length === 0 ? (
-                <div className="empty-state">No check-ins yet. Start your streak today.</div>
-              ) : (
-                <>
-                  <div className="chart">
-                    {[...data.checkins].reverse().map((c, i) => (
-                      <div key={i}>
-                        <div className="bar-group">
-                          <div className="bar" style={{ height: `${(c.stress / 5) * 90}px`, background: '#f59e0b' }} title={`Stress: ${c.stress}`} />
-                          <div className="bar" style={{ height: `${(c.energy / 5) * 90}px`, background: '#34d399' }} title={`Energy: ${c.energy}`} />
-                          <div className="bar" style={{ height: `${(c.workload / 5) * 90}px`, background: '#818cf8' }} title={`Workload: ${c.workload}`} />
-                        </div>
-                        <div className="bar-date">{c.date.slice(5)}</div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
+            )}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Peer Match Available</span>
+              <span className="font-semibold text-gray-900">
+                {data?.peerMatchAvailable ? 'Yes' : 'No'}
+              </span>
             </div>
-          </>
-        ) : (
-          <div className="empty-state">Failed to load. Refresh the page.</div>
-        )}
+          </div>
+        </div>
       </div>
     </div>
   )

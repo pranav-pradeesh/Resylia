@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withAuth } from '@resylia/shared/src/auth/middleware'
+import { withAuth } from '@resylia/shared'
 import { getTeamCheckins } from '@resylia/db/src/checkins'
 import { aggregateForManager, MINIMUM_COHORT_SIZE } from '@resylia/db/src/sensitive'
 import { getOrgById } from '@resylia/db/src/users'

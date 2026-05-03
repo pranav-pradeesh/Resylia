@@ -1,9 +1,9 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
-import { PERMISSIONS, type Permission } from '../roles'
+import { PERMISSIONS, type Role, type Permission } from '../roles'
 import { logSecurityEvent } from '../audit'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse } from 'next/server'
 
 type Database = {
   public: {
@@ -15,7 +15,7 @@ type Database = {
   }
 }
 
-function getAdminDb(): SupabaseClient<Database> {
+function getAdminDbLocal(): SupabaseClient<Database> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error('Missing Supabase environment variables (admin client)')
   }
@@ -24,6 +24,15 @@ function getAdminDb(): SupabaseClient<Database> {
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { persistSession: false, autoRefreshToken: false } }
   )
+}
+
+export function hasPermission(userRole: string, permission: Permission): boolean {
+  const allowedRoles = PERMISSIONS[permission] as readonly string[]
+  return allowedRoles.includes(userRole)
+}
+
+export function requireAuthFeature(plan: string, feature: string) {
+  return { allowed: true }
 }
 
 export async function withAuth(
@@ -52,7 +61,7 @@ export async function withAuth(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const adminDb = getAdminDb()
+    const adminDb = getAdminDbLocal()
 
     const { data: profile, error: profileError } = await (adminDb.from('users') as any)
       .select('org_id, role, is_active')

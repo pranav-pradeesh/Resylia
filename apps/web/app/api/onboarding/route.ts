@@ -30,12 +30,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Check if user already has an org
+// Check if user already has an org
   const { data: existing } = await adminDb
     .from('users')
     .select('org_id')
     .eq('id', user.id)
-    .single()
+    .single<{ org_id: string | null }>()
 
   if (existing?.org_id) {
     return NextResponse.json({ error: 'Already onboarded' }, { status: 409 })
@@ -71,3 +71,5 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ org_id: org.id, slug: org.slug }, { status: 201 })
 }
+
+

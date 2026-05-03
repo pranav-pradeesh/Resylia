@@ -1,193 +1,154 @@
 'use client'
+
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
-type Step = 'energy' | 'stress' | 'workload' | 'freetext' | 'done'
+export default function EmployeeCheckinPage() {
+  const [energy, setEnergy] = useState(5)
+  const [stress, setStress] = useState(5)
+  const [mood, setMood] = useState('neutral')
+  const [notes, setNotes] = useState('')
+  const [loading, setLoading] = useState(false)
 
-const QUESTIONS = {
-  energy:   { label: 'Energy', question: 'How is your energy today?', low: 'Exhausted', high: 'Energised' },
-  stress:   { label: 'Stress', question: 'How stressed are you?',     low: 'Calm',     high: 'Overwhelmed' },
-  workload: { label: 'Workload', question: 'How is your workload?',   low: 'Light',    high: 'Crushing' },
-}
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
 
-const STEP_ORDER: Step[] = ['energy', 'stress', 'workload', 'freetext', 'done']
-
-export default function CheckinPage() {
-  const router = useRouter()
-  const [step, setStep] = useState<Step>('energy')
-  const [scores, setScores] = useState<Record<string, number>>({})
-  const [freeText, setFreeText] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [result, setResult] = useState<{ streak: number; risk_level: string; suggestion?: string } | null>(null)
-
-  const stepIndex = STEP_ORDER.indexOf(step)
-
-  function selectScore(value: number) {
-    const q = step as 'energy' | 'stress' | 'workload'
-    setScores((s) => ({ ...s, [q]: value }))
-    const next = STEP_ORDER[stepIndex + 1]
-    setTimeout(() => setStep(next), 180)
-  }
-
-  async function submit() {
-    setSubmitting(true)
     try {
-      const res = await fetch('/api/checkin', {
+      const response = await fetch('/api/employee/checkin', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...scores, free_text: freeText || undefined, source: 'web' }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          energy,
+          stress,
+          mood,
+          notes,
+        }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
 
-      // Fetch coach suggestion
-      const coachRes = await fetch('/api/coach', { method: 'POST' })
-      const coach = coachRes.ok ? await coachRes.json() : null
-
-      setResult({ ...data, suggestion: coach?.suggestion })
-      setStep('done')
-    } catch (e: any) {
-      alert(e.message ?? 'Failed to submit. Try again.')
+      if (response.ok) {
+        alert('Check-in submitted successfully!')
+        // Redirect to dashboard
+        window.location.href = '/(employee)/dashboard'
+      } else {
+        alert('Failed to submit check-in')
+      }
+    } catch (error) {
+      alert('Error submitting check-in')
     } finally {
-      setSubmitting(false)
+      setLoading(false)
     }
   }
 
-  const progressPct = ((stepIndex) / 4) * 100
-
   return (
-    <div style={{
-      fontFamily: "'DM Mono', monospace",
-      background: '#0a0a0f',
-      minHeight: '100vh',
-      color: '#f1f0eb',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px',
-    }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap');
-        * { box-sizing:border-box; }
-        .container { width:100%; max-width:460px; }
-        .progress-bar { height:3px; background:rgba(255,255,255,0.08); border-radius:99px; margin-bottom:48px; overflow:hidden; }
-        .progress-fill { height:100%; background:#f59e0b; border-radius:99px; transition:width 0.4s ease; }
-        .question { font-family:'DM Serif Display',serif; font-size:clamp(28px,6vw,40px); letter-spacing:-1px; margin-bottom:8px; }
-        .labels { display:flex; justify-content:space-between; font-size:11px; color:#6b7280; margin-bottom:40px; }
-        .score-row { display:flex; gap:12px; justify-content:center; margin-bottom:32px; }
-        .score-btn { width:56px; height:56px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:#f1f0eb; font-size:20px; font-family:'DM Mono',monospace; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; }
-        .score-btn:hover { background:rgba(245,158,11,0.15); border-color:#f59e0b; transform:scale(1.08); }
-        .score-btn.selected { background:rgba(245,158,11,0.2); border-color:#f59e0b; color:#f59e0b; }
-        textarea { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:12px; color:#f1f0eb; font-family:'DM Mono',monospace; font-size:14px; padding:16px; resize:none; outline:none; transition:border-color 0.2s; }
-        textarea:focus { border-color:rgba(245,158,11,0.4); }
-        .char-count { text-align:right; font-size:11px; color:#6b7280; margin-top:6px; }
-        .submit-btn { width:100%; padding:16px; background:#f59e0b; color:#0a0a0f; border:none; border-radius:10px; font-family:'DM Mono',monospace; font-weight:500; font-size:15px; cursor:pointer; margin-top:24px; transition:opacity 0.2s; }
-        .submit-btn:hover { opacity:0.85; }
-        .submit-btn:disabled { opacity:0.4; cursor:not-allowed; }
-        .skip-link { text-align:center; font-size:12px; color:#6b7280; margin-top:16px; cursor:pointer; }
-        .skip-link:hover { color:#9ca3af; }
-        .done-card { text-align:center; }
-        .streak { font-size:64px; line-height:1; color:#f59e0b; margin:16px 0 4px; }
-        .streak-label { font-size:13px; color:#6b7280; margin-bottom:40px; }
-        .suggestion-card { background:#111118; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:24px; text-align:left; margin-bottom:24px; }
-        .suggestion-label { font-size:11px; color:#f59e0b; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
-        .suggestion-text { font-size:15px; line-height:1.7; color:#e5e7eb; }
-        .risk-badge { display:inline-block; padding:4px 12px; border-radius:99px; font-size:11px; letter-spacing:1px; text-transform:uppercase; margin-bottom:24px; }
-        .risk-low { background:rgba(34,197,94,0.1); color:#86efac; border:1px solid rgba(34,197,94,0.2); }
-        .risk-medium { background:rgba(245,158,11,0.1); color:#fcd34d; border:1px solid rgba(245,158,11,0.2); }
-        .risk-high { background:rgba(239,68,68,0.1); color:#fca5a5; border:1px solid rgba(239,68,68,0.2); }
-        .back-link { font-size:13px; color:#f59e0b; text-decoration:none; cursor:pointer; }
-      `}</style>
-
-      <div className="container">
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${progressPct}%` }} />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Daily Check-in</h1>
+          <p className="text-gray-600">How are you feeling today?</p>
         </div>
 
-        {step !== 'done' && step !== 'freetext' && (
-          <ScoreStep
-            question={QUESTIONS[step as 'energy' | 'stress' | 'workload'].question}
-            low={QUESTIONS[step as 'energy' | 'stress' | 'workload'].low}
-            high={QUESTIONS[step as 'energy' | 'stress' | 'workload'].high}
-            selected={scores[step]}
-            onSelect={selectScore}
-          />
-        )}
-
-        {step === 'freetext' && (
-          <div>
-            <div className="question" style={{ marginBottom: 12 }}>Anything on your mind?</div>
-            <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 24 }}>Optional. Only you and your AI coach see this.</div>
-            <textarea
-              rows={4}
-              maxLength={500}
-              placeholder="What's weighing on you today? Or what went well?"
-              value={freeText}
-              onChange={(e) => setFreeText(e.target.value)}
-            />
-            <div className="char-count">{freeText.length}/500</div>
-            <button className="submit-btn" onClick={submit} disabled={submitting}>
-              {submitting ? 'Submitting...' : 'Submit check-in →'}
-            </button>
-            {!submitting && (
-              <div className="skip-link" onClick={submit}>Skip and submit</div>
-            )}
-          </div>
-        )}
-
-        {step === 'done' && result && (
-          <div className="done-card">
-            <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 4, letterSpacing: 2, textTransform: 'uppercase' }}>Check-in complete</div>
-            <div className="streak">🔥 {result.streak}</div>
-            <div className="streak-label">day streak — keep it going!</div>
-
-            <div className={`risk-badge risk-${result.risk_level}`}>
-              {result.risk_level === 'low' && '✓ Low burnout risk'}
-              {result.risk_level === 'medium' && '⚠ Medium burnout risk'}
-              {result.risk_level === 'high' && '⚡ High burnout risk'}
-            </div>
-
-            {result.suggestion && (
-              <div className="suggestion-card">
-                <div className="suggestion-label">Your coach says</div>
-                <div className="suggestion-text">{result.suggestion}</div>
+        <div className="bg-white rounded-2xl p-8 shadow-lg">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Energy Level */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Energy Level (1-10)
+              </label>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-500">Low</span>
+                <span className="text-sm text-gray-500">High</span>
               </div>
-            )}
-
-            <div onClick={() => router.push('/dashboard')} className="back-link">
-              ← Back to dashboard
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={energy}
+                onChange={(e) => setEnergy(parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="text-center mt-2">
+                <span className="text-2xl font-bold text-blue-600">{energy}</span>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
-function ScoreStep({
-  question, low, high, selected, onSelect,
-}: {
-  question: string
-  low: string
-  high: string
-  selected?: number
-  onSelect: (v: number) => void
-}) {
-  return (
-    <div>
-      <div className="question">{question}</div>
-      <div className="labels"><span>{low}</span><span>{high}</span></div>
-      <div className="score-row">
-        {[1, 2, 3, 4, 5].map((v) => (
-          <button
-            key={v}
-            className={`score-btn${selected === v ? ' selected' : ''}`}
-            onClick={() => onSelect(v)}
-          >
-            {v}
-          </button>
-        ))}
+            {/* Stress Level */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Stress Level (1-10)
+              </label>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-500">Low</span>
+                <span className="text-sm text-gray-500">High</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={stress}
+                onChange={(e) => setStress(parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="text-center mt-2">
+                <span className="text-2xl font-bold text-red-600">{stress}</span>
+              </div>
+            </div>
+
+            {/* Mood */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Current Mood
+              </label>
+              <div className="flex justify-around">
+                {['😢', '😔', '😐', '🙂', '😊'].map((emoji, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => setMood(['sad', 'down', 'neutral', 'good', 'happy'][index])}
+                    className={`text-3xl p-2 rounded-lg transition-colors ${
+                      mood === ['sad', 'down', 'neutral', 'good', 'happy'][index]
+                        ? 'bg-blue-100 border-2 border-blue-300'
+                        : 'hover:bg-gray-100'
+                    }`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+                Notes (Optional)
+              </label>
+              <textarea
+                id="notes"
+                rows={3}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="How was your day? Any challenges or wins?"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 transition-colors"
+            >
+              {loading ? 'Submitting...' : 'Submit Check-in'}
+            </button>
+          </form>
+        </div>
+
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-600">
+            This check-in takes less than 30 seconds and helps us understand how you're doing.
+          </p>
+        </div>
       </div>
     </div>
   )

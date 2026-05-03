@@ -50,11 +50,11 @@ export async function handleCheckinAction({
   ack,
   client,
   context,
-}: SlackActionMiddlewareArgs<BlockElementAction> & { context: any; client: any }) {
+}: SlackActionMiddlewareArgs<any> & { context: any; client: any }) {
   await ack()
 
   const userId = context.userId as string
-  const action = body.actions?.[0] as any
+  const action = (body as any).actions?.[0]
 
   if (!userId || !action) return
 

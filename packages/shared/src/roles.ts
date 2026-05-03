@@ -21,6 +21,10 @@ export const PERMISSIONS = {
   'analytics:read':          [ROLES.HR, ROLES.ADMIN],
   'billing:manage':          [ROLES.ADMIN],
   'users:manage':            [ROLES.ADMIN],
+  'user:read':               [ROLES.EMPLOYEE, ROLES.MANAGER, ROLES.HR, ROLES.ADMIN],
+  'hr:read':                 [ROLES.HR, ROLES.ADMIN],
+  'manager:read':            [ROLES.MANAGER, ROLES.ADMIN],
+  'manager:write':           [ROLES.MANAGER, ROLES.ADMIN],
 } as const
 
 export type Permission = keyof typeof PERMISSIONS

@@ -25,6 +25,17 @@ export const InviteSchema = z.object({
   department: z.string().max(100).optional(),
 })
 
+// Risk event schema for prediction service input
+export const RiskEventSchema = z.object({
+  user_id: z.string().uuid(),
+  org_id: z.string().uuid(),
+  risk_level: z.enum(['low', 'medium', 'high', 'critical']),
+  predicted_burnout_date: z.string().date().optional(),
+  contributing_factors: z.record(z.unknown()).optional(),
+  acknowledged_by: z.string().uuid().optional(),
+})
+
 export type CheckinInput   = z.infer<typeof CheckinSchema>
 export type OrgInput       = z.infer<typeof OrgSchema>
 export type InviteInput    = z.infer<typeof InviteSchema>
+export type RiskEventInput = z.infer<typeof RiskEventSchema>

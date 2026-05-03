@@ -51,7 +51,7 @@ export async function POST(req: Request) {
         .from('users')
         .select('id, org_id')
         .eq('slack_user_id', userId)
-        .single()
+        .single<{ [key: string]: any }>()
 
       if (user) {
         // Queue the check-in update (actual processing in Slack bot via Bolt)
@@ -70,3 +70,7 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ ok: true })
 }
+
+
+
+

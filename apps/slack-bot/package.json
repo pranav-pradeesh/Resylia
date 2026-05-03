@@ -5,9 +5,9 @@
   "main": "dist/app.js",
   "scripts": {
     "dev": "ts-node-dev --respawn app.ts",
-    "build": "tsc --skipLibCheck || true",
+    "build": "tsc --skipLibCheck",
     "start": "node dist/app.js",
-    "type-check": "tsc --noEmit --skipLibCheck || true"
+    "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@resylia/ai": "workspace:*",

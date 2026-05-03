@@ -1,0 +1,252 @@
+Folder PATH listing
+Volume serial number is 00000016 C06E:D7F0
+C:\USERS\LENOVO\DOWNLOADS\RESYLIA\APPS\WEB\APP
+³   auth.ts
+³   layout.tsx
+³   robots.ts
+³   sitemap.ts
+³   
+ÃÄÄÄ(auth)
+³   ÃÄÄÄerror
+³   ³       page.tsx
+³   ³       
+³   ÃÄÄÄlogin
+³   ³       page.tsx
+³   ³       
+³   ÀÄÄÄsignup
+³           page.tsx
+³           
+ÃÄÄÄ(employee)
+³   ÃÄÄÄcheckin
+³   ³       layout.tsx
+³   ³       page.tsx
+³   ³       
+³   ÃÄÄÄdashboard
+³   ³       layout.tsx
+³   ³       page.tsx
+³   ³       
+³   ÀÄÄÄhr
+³       ÀÄÄÄanalytics
+ÃÄÄÄ(marketing)
+³       page.tsx
+³       
+ÃÄÄÄ(root)
+³       layout.tsx
+³       
+ÃÄÄÄapi
+³   ÃÄÄÄai
+³   ³   ÀÄÄÄburnout-prediction
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄanalytics
+³   ³   ÀÄÄÄindustry-benchmarking
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄauth
+³   ³   ³   route.ts
+³   ³   ³   
+³   ³   ÃÄÄÄslack
+³   ³   ³   ³   route.ts
+³   ³   ³   ³   
+³   ³   ³   ÀÄÄÄcallback
+³   ³   ³           route.ts
+³   ³   ³           
+³   ³   ÀÄÄÄv1
+³   ³       ÀÄÄÄcallback
+³   ³               route.ts
+³   ³               
+³   ÃÄÄÄcheckin
+³   ³   ³   route.ts
+³   ³   ³   
+³   ³   ÀÄÄÄemail
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄcheckins
+³   ³   ÀÄÄÄdaily-delivery
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄcoach
+³   ³       route.ts
+³   ³       
+³   ÃÄÄÄdebug
+³   ³   ÀÄÄÄauth
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄemployee
+³   ³   ÃÄÄÄcheckin
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄdashboard
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄmeeting-load
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÀÄÄÄstats
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄhr
+³   ³   ÃÄÄÄanalytics
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄleadership
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄmeeting-load
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄpto-avoidance
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÀÄÄÄsystem-conditions
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄinvites
+³   ³       route.ts
+³   ³       
+³   ÃÄÄÄmanager
+³   ³   ÃÄÄÄdashboard
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄheatmap
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄinterventions
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄnudges
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÀÄÄÄteam
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄnotifications
+³   ³   ÀÄÄÄemail
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄonboarding
+³   ³   ³   route.ts
+³   ³   ³   
+³   ³   ÃÄÄÄcomplete
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÀÄÄÄstatus
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄorganizations
+³   ³   ÃÄÄÄcurrent
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÀÄÄÄupgrade
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄpayment
+³   ³   ÃÄÄÄinitiate
+³   ³   ³       auth.ts
+³   ³   ³       razorpay.ts
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄtrial
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÀÄÄÄverify
+³   ³           auth.ts
+³   ³           razorpay.ts
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄreport-anonymous
+³   ³       route.ts
+³   ³       
+³   ÃÄÄÄslack
+³   ³   ÃÄÄÄbot-auth
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄbot-callback
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÀÄÄÄcheckin
+³   ³           route.ts
+³   ³           
+³   ÃÄÄÄsubscriptions
+³   ³       auth.ts
+³   ³       encryption.ts
+³   ³       route.ts
+³   ³       
+³   ÃÄÄÄtest
+³   ³   ÃÄÄÄcomprehensive
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄslack-expiry
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÃÄÄÄwebhook-duplicate
+³   ³   ³       route.ts
+³   ³   ³       
+³   ³   ÀÄÄÄzero-employees
+³   ³           route.ts
+³   ³           
+³   ÀÄÄÄwebhooks
+³       ÃÄÄÄrazorpay
+³       ³       route.ts
+³       ³       
+³       ÃÄÄÄslack
+³       ³       route.ts
+³       ³       
+³       ÀÄÄÄstripe
+³               route.ts
+³               
+ÃÄÄÄemployee
+³   ÃÄÄÄcomponents
+³   ³       QuickCheckin.tsx
+³   ³       
+³   ÃÄÄÄdashboard
+³   ³       page.tsx
+³   ³       
+³   ÃÄÄÄfocus
+³   ³       page.tsx
+³   ³       
+³   ÃÄÄÄinsights
+³   ³       page.tsx
+³   ³       
+³   ÃÄÄÄmeeting-fatigue
+³   ³       page.tsx
+³   ³       
+³   ÃÄÄÄpeers
+³   ³       page.tsx
+³   ³       
+³   ÀÄÄÄpto
+³           page.tsx
+³           
+ÃÄÄÄhr
+³   ÃÄÄÄanalytics
+³   ³       layout.tsx
+³   ³       page.tsx
+³   ³       
+³   ÀÄÄÄdashboard
+³           layout.tsx
+³           page.tsx
+³           
+ÃÄÄÄlib
+³   ÀÄÄÄai
+³           burnout-prediction.ts
+³           
+ÃÄÄÄmanager
+³   ÃÄÄÄdashboard
+³   ³       page.tsx
+³   ³       
+³   ÃÄÄÄinterventions
+³   ÀÄÄÄteam
+³           page.tsx
+³           
+ÃÄÄÄmarketing
+³       page.tsx
+³       
+ÃÄÄÄonboarding
+³       page.tsx
+³       
+ÃÄÄÄpricing
+³       page.tsx
+³       
+ÀÄÄÄreport-anonymous
+        page.tsx
+        

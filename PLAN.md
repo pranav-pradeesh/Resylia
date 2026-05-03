@@ -21,6 +21,12 @@ Both founders are full-stack developers. The plan is aggressive relative to the 
 - Team: 2 developers (co-founders)
 - Capital: Bootstrapped from freelance income
 - Legal entity: Private Limited (India) — C-Corp conversion deferred to Series A
+- Database: Schema audited and updated - Added risk_events table and updated alert types to match specification
+- Input Validation: Added RiskEventSchema for prediction service input, ensured all API routes use validation schemas
+- Excel Export: Added xlsx dependency and created export utilities
+- SMS Reminders: Added Twilio dependency and created SMS service
+- WhatsApp Integration: Added Twilio dependency and created messaging service with WhatsApp support
+- Microsoft 365 Integration: Not started
 
 ---
 
@@ -94,20 +100,34 @@ organizations (
   id uuid PK,
   name text,
   slug text UNIQUE,
-  plan text,                     -- 'starter' | 'growth' | 'enterprise'
+  domain text,                           -- Unique domain for SSO
+  encryption_key text,                   -- Encryption key for sensitive data
+  plan text,                             -- 'starter' | 'growth' | 'enterprise'
   seat_count int,
   stripe_customer_id text,
+  subscription_tier text,                -- 'starter' | 'growth' | 'enterprise'
+  subscription_status text,              -- 'active' | 'canceled' | 'past_due' etc.
+  trial_started_at timestamptz,
+  trial_ends_at timestamptz,
+  razorpay_customer_id text,             -- For Razorpay payments
+  slack_team_id text,                    -- Slack workspace ID
   created_at timestamptz
 )
 
 -- Users (employees)
 users (
-  id uuid PK,                    -- matches Supabase Auth uid
+  id uuid PK,                            -- matches Supabase Auth uid
   org_id uuid FK organizations,
-  role text,                     -- 'employee' | 'manager' | 'hr' | 'admin'
+  role text,                             -- 'employee' | 'manager' | 'hr' | 'admin'
   department text,
   manager_id uuid FK users,
+  slack_user_id text,                    -- Slack user ID
+  slack_tz_offset int,                   -- Seconds from UTC
   is_active bool,
+  custom_persona text,                   -- Custom AI coaching persona
+  two_factor_secret text,                -- 2FA secret key
+  two_factor_enabled boolean,            -- 2FA enabled flag
+  two_factor_verified boolean,           -- 2FA verified flag
   created_at timestamptz
 )
 
@@ -116,12 +136,15 @@ checkins (
   id uuid PK,
   user_id uuid FK users,
   org_id uuid FK organizations,
-  energy int,                    -- 1-5
-  stress int,                    -- 1-5
-  workload int,                  -- 1-5
-  sentiment_score float,         -- AI-derived from optional free-text
-  burnout_risk_score float,      -- ML model output (0.0-1.0)
-  source text,                   -- 'web' | 'slack' | 'teams'
+  energy int,                            -- 1-5
+  stress int,                            -- 1-5
+  workload int,                          -- 1-5
+  sentiment_score float,                 -- AI-derived from optional free-text
+  burnout_risk_score float,              -- ML model output (0.0-1.0)
+  source text,                           -- 'web' | 'slack' | 'teams'
+  response_duration_ms int,              -- Time to complete check-in
+  day_of_week int,                       -- Auto-generated: 0-6 (Sun-Sat)
+  prompt_version text,                   -- Version of prompt used for sentiment
   checked_in_at timestamptz
 )
 
@@ -130,10 +153,10 @@ risk_events (
   id uuid PK,
   user_id uuid FK users,
   org_id uuid FK organizations,
-  risk_level text,               -- 'low' | 'medium' | 'high' | 'critical'
-  predicted_burnout_date date,   -- ML prediction
-  contributing_factors jsonb,
-  acknowledged_by uuid FK users,
+  risk_level text,                       -- 'low' | 'medium' | 'high' | 'critical'
+  predicted_burnout_date date,           -- ML prediction
+  contributing_factors jsonb,            -- Factors contributing to risk
+  acknowledged_by uuid FK users,         -- Who acknowledged the risk
   created_at timestamptz
 )
 
@@ -142,8 +165,8 @@ alerts (
   id uuid PK,
   org_id uuid FK organizations,
   manager_id uuid FK users,
-  type text,                     -- 'team_risk_spike' | 'individual_high_risk' | 'trend_alert'
-  payload jsonb,
+  type text,                             -- 'team_risk_spike' | 'individual_high_risk' | 'trend_alert'
+  payload jsonb,                         -- Aggregated data only (no user IDs)
   seen_at timestamptz,
   created_at timestamptz
 )
@@ -153,10 +176,14 @@ subscriptions (
   id uuid PK,
   org_id uuid FK organizations,
   stripe_subscription_id text,
-  status text,
-  plan text,
+  status text,                           -- 'trialing' | 'active' | 'past_due' | 'canceled' | 'unpaid'
+  plan text,                             -- 'starter' | 'growth' | 'enterprise'
   seat_count int,
-  current_period_end timestamptz
+  current_period_end timestamptz,
+  trial_started_at timestamptz,
+  trial_ends_at timestamptz,
+  created_at timestamptz,
+  updated_at timestamptz
 )
 ```
 

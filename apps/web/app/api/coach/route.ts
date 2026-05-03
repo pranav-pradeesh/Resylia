@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withAuth } from '@resylia/shared/src/auth/middleware'
+import { withAuth } from '@resylia/shared'
 import { rateLimiters } from '@resylia/shared/src/rate-limit'
 import { checkAIBudget, TooManyRequestsError } from '@resylia/shared/src/ai/budget'
 import { getRecentCheckins } from '@resylia/db/src/checkins'

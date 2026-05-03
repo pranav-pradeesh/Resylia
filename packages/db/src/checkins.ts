@@ -1,5 +1,6 @@
 import { adminDb } from './client'
 import type { CheckinInput } from '../../shared/src/validation'
+import { getUserBurnoutScoreRuleBased, getUserBurnoutScoreWithAI } from './burnout-calculations'
 
 export interface CheckinRow {
   id: string
@@ -36,7 +37,7 @@ export async function insertCheckin(
       checked_in_at: new Date().toISOString(),
     })
     .select()
-    .single()
+    .single<{ [key: string]: any }>()
 
   if (error) throw new Error(`Failed to insert check-in: ${error.message}`)
   return row as CheckinRow
@@ -130,3 +131,5 @@ export async function hasCheckedInToday(userId: string): Promise<boolean> {
 
   return (count ?? 0) > 0
 }
+
+

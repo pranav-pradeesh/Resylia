@@ -1,41 +1,50 @@
-'use client'
-import Link from 'next/link'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Authentication Error - Resylia',
+  description: 'Authentication error occurred. Please try again.',
+}
 
 export default function AuthErrorPage() {
   return (
-    <div style={{
-      fontFamily: "'DM Mono', monospace",
-      background: '#0a0a0f',
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: '#f1f0eb',
-    }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap');
-        * { box-sizing:border-box; }
-        .card { background:#111118; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:48px; width:100%; max-width:400px; }
-        .logo { font-family:'DM Serif Display',serif; font-size:28px; margin-bottom:8px; }
-        .logo span { color:#f59e0b; }
-        .error-icon { font-size:48px; margin-bottom:24px; }
-        .error-text { color:#fca5a5; margin-bottom:24px; }
-        .button { display:inline-block; padding:12px 24px; background:#f59e0b; color:#0a0a0f; border-radius:8px; text-decoration:none; font-weight:500; }
-        .button:hover { background:#fbbf24; }
-      `}</style>
-
-      <div className="card">
-        <div className="logo">Resylia<span>.</span></div>
-        <div className="error-icon">❌</div>
-        <div className="error-text">
-          <p>Authentication failed. This could be because:</p>
-          <ul style={{ fontSize: '13px', lineHeight: '1.6', color: '#d1d5db' }}>
-            <li>The OAuth provider is not configured</li>
-            <li>The redirect URL is not authorized</li>
-            <li>The session expired</li>
-          </ul>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full text-center">
+        <div className="mb-8">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">❌</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Authentication Error</h1>
+          <p className="text-gray-600">
+            Something went wrong during authentication. Please try again.
+          </p>
         </div>
-        <Link href="/login" className="button">← Back to Login</Link>
+        
+        <div className="space-y-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <h3 className="font-semibold text-yellow-800 mb-2">Possible causes:</h3>
+            <ul className="text-sm text-yellow-700 text-left space-y-1">
+              <li>• Invalid or expired authentication token</li>
+              <li>• Session timeout</li>
+              <li>• Network connectivity issues</li>
+              <li>• Invalid credentials</li>
+            </ul>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => window.location.href = '/auth/login'}
+              className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            >
+              Go to Login
+            </button>
+            <button
+              onClick={() => window.location.href = '/'}
+              className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+            >
+              Back to Home
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
